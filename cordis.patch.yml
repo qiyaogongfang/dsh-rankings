@@ -1,0 +1,5 @@
+# 排行榜：侧栏面板 + 每日快照 + 三个工具。
+# 浏览器半边由 package.json 的 dsh.client 声明加载（client.js）。
+- insert:
+    - id: rankings
+      name: '@qiyaogongfang/dsh-rankings'

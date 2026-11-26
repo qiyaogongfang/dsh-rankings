@@ -1,0 +1,4 @@
+# 榜单快照是本地数据，不进 Git
+data/
+node_modules/
+*.tmp

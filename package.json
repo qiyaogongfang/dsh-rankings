@@ -1,0 +1,64 @@
+{
+  "name": "@qiyaogongfang/dsh-rankings",
+  "version": "0.1.0",
+  "description": "软件排行榜：苹果 App Store 与谷歌 Play 的每日榜单、飙升榜和一句话中文简介，支持游戏榜，侧栏随时看。 / App store rankings for DeepSeek Harness: daily top charts (incl. games), rising apps and Chinese one-line intros.",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT",
+  "author": "qiyaogongfang <357743028+qiyaogongfang@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qiyaogongfang/dsh-rankings.git"
+  },
+  "homepage": "https://github.com/qiyaogongfang/dsh-rankings#readme",
+  "bugs": {
+    "url": "https://github.com/qiyaogongfang/dsh-rankings/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "app-store",
+    "google-play",
+    "rankings",
+    "charts"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "store.js",
+    "http.js",
+    "fetch-apple.js",
+    "fetch-play.js",
+    "translate.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.2-rc.1 <0.3.0"
+  },
+  "icon": "./icon.svg",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": []
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
