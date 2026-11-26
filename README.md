@@ -23,6 +23,16 @@
 >
 > 简介翻译走本机 Ollama：默认 `qwen3.8:latest`，可用环境变量 `RANKINGS_OLLAMA_URL` / `RANKINGS_TRANSLATE_MODEL` 改。中文原文（中国区商店）直接沿用，不再翻译。
 
+## 安装
+
+DSH 插件管理里搜 `dsh-rankings`（认准 `@qiyaogongfang/dsh-rankings`），或命令行：
+
+```bash
+dsh plugin --profile web add @qiyaogongfang/dsh-rankings
+```
+
+装完刷新页面，左侧栏出现「软件排行榜」。想要中文简介，需要本机跑着 Ollama（关掉就显示原文）。
+
 ## 模型工具
 
 | 工具 | 用途 |
