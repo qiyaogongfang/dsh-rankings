@@ -2,7 +2,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-export const DEFAULT_COUNTRIES = ['us', 'jp', 'kr', 'de', 'gb', 'in', 'cn']
+export const DEFAULT_COUNTRIES = ['us', 'jp', 'kr', 'de', 'gb', 'in', 'cn', 'fr', 'ca', 'au', 'br', 'id', 'th', 'vn', 'tw', 'hk', 'sg']
 export const CHARTS = ['free', 'paid', 'grossing']
 
 export function localDate(date = new Date()) {

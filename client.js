@@ -18,6 +18,16 @@ window.__ModuleLoader__.load({
       { code: 'gb', zh: '英国', en: 'United Kingdom' },
       { code: 'in', zh: '印度', en: 'India' },
       { code: 'cn', zh: '中国', en: 'China' },
+      { code: 'fr', zh: '法国', en: 'France' },
+      { code: 'ca', zh: '加拿大', en: 'Canada' },
+      { code: 'au', zh: '澳大利亚', en: 'Australia' },
+      { code: 'br', zh: '巴西', en: 'Brazil' },
+      { code: 'id', zh: '印尼', en: 'Indonesia' },
+      { code: 'th', zh: '泰国', en: 'Thailand' },
+      { code: 'vn', zh: '越南', en: 'Vietnam' },
+      { code: 'tw', zh: '台湾', en: 'Taiwan' },
+      { code: 'hk', zh: '香港', en: 'Hong Kong' },
+      { code: 'sg', zh: '新加坡', en: 'Singapore' },
     ]
 
     const DICT = {
