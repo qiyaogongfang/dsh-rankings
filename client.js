@@ -301,6 +301,9 @@ window.__ModuleLoader__.load({
           h('span', { className: 'rp-row-name' }, app.name),
           app.developer ? h('span', { className: 'rp-row-dev' }, app.developer) : null,
           (app.summaryZh || app.summary) ? h('span', { className: 'rp-summary' }, app.summaryZh || app.summary) : null),
+        typeof app.days === 'number' && app.days > 0
+          ? h('span', { className: 'rp-delta', 'data-kind': 'new' }, `${app.days}天`)
+          : null,
         h(DeltaBadge, { app, t }))
     }
 
@@ -381,7 +384,9 @@ window.__ModuleLoader__.load({
           const payload = { store, country, chart: effectiveChart }
           const data = view === 'rising'
             ? await rpc('rising', payload)
-            : await rpc('top', { ...payload, force: Boolean(force) })
+            : view === 'weekly' || view === 'monthly'
+              ? await rpc(view, payload)
+              : await rpc('top', { ...payload, force: Boolean(force) })
           if (my === seq.current) setState({ phase: 'ready', data })
         } catch (error) {
           report(`load ${store}/${country}/${effectiveChart}/${view}: ${error.message || error}`)
@@ -405,13 +410,18 @@ window.__ModuleLoader__.load({
         ? (chart === 'paid' ? t.chartGamesPaid : chart === 'grossing' ? t.chartGamesGrossing : t.chartGamesFree)
         : (chart === 'paid' ? t.chartPaid : chart === 'grossing' ? t.chartGrossing : t.chartFree)
       const storeLabel = store === 'google' ? t.googleStore : t.appleStore
+      const viewLabel = view === 'rising' ? t.viewRising : view === 'weekly' ? t.viewWeekly : view === 'monthly' ? t.viewMonthly : chartLabel
       const updated = data && data.fetchedAt ? formatTime(data.fetchedAt) : ''
+      const range = view === 'weekly' || view === 'monthly'
+        ? (data && data.start ? `${data.start} → ${data.end}（${data.days} 天）` : '')
+        : ''
 
       const head = h('div', { className: 'rp-head' },
         h('span', { className: 'rp-mark' }, h(Bars, { size: 17 })),
         h('span', { className: 'rp-head-title' }, t.title),
-        h('span', { className: 'rp-head-sub' }, `${t.subtitle(storeLabel, view === 'rising' ? t.viewRising : chartLabel, countryName(country, t))}${apps.length ? ` · ${apps.length} 款` : ''}`),
+        h('span', { className: 'rp-head-sub' }, `${t.subtitle(storeLabel, viewLabel, countryName(country, t))}${apps.length ? ` · ${apps.length} 款` : ''}`),
         h('span', { className: 'rp-grow' }),
+        range ? h('span', { className: 'rp-head-sub' }, range) : null,
         updated && view === 'top' ? h('span', { className: 'rp-head-sub' }, t.updated(updated)) : null,
         h('button', {
           type: 'button',
@@ -445,6 +455,8 @@ window.__ModuleLoader__.load({
 
       const viewTabs = h('div', { className: 'rp-group' },
         h('button', { type: 'button', className: 'rp-tab', 'data-active': String(view === 'top'), onClick: () => setView('top') }, t.viewTop),
+        h('button', { type: 'button', className: 'rp-tab', 'data-active': String(view === 'weekly'), onClick: () => setView('weekly') }, t.viewWeekly),
+        h('button', { type: 'button', className: 'rp-tab', 'data-active': String(view === 'monthly'), onClick: () => setView('monthly') }, t.viewMonthly),
         h('button', { type: 'button', className: 'rp-tab', 'data-active': String(view === 'rising'), onClick: () => setView('rising') }, t.viewRising))
 
       const toolbar = h('div', { className: 'rp-toolbar' }, storeTabs, categoryTabs, chartTabs, viewTabs)

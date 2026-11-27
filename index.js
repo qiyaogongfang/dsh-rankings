@@ -101,6 +101,19 @@ async function dispatch(ctx, action, payload) {
       const chart = chartFor(store, payload.chart)
       return ctx.store.rising({ store, country, chart, limit: SNAPSHOT_LIMIT })
     }
+    case 'weekly':
+    case 'monthly': {
+      const store = payload.store === 'google' ? 'google' : 'apple'
+      const country = String(payload.country || 'us').toLowerCase()
+      const chart = chartFor(store, payload.chart)
+      return ctx.store.aggregate({
+        store,
+        country,
+        chart,
+        days: action === 'weekly' ? 7 : 30,
+        limit: SNAPSHOT_LIMIT,
+      })
+    }
     case 'app': {
       const store = payload.store === 'google' ? 'google' : 'apple'
       const country = String(payload.country || 'us').toLowerCase()

@@ -140,6 +140,67 @@ export class Store {
     }
   }
 
+  /**
+   * 周榜 / 月榜：按窗口内每天的榜单快照聚合。
+   * 排序看平均名次（名次越靠前越优先），同分看上榜天数。
+   */
+  aggregate({ store, country, chart, days = 7, date, limit = 100 }) {
+    const today = date || localDate()
+    const all = this.dates(store, country, chart).filter((item) => item <= today)
+    const window = all.slice(-days)
+    if (!window.length) return { ready: false, reason: 'empty', apps: [] }
+    const acc = new Map()
+    for (const day of window) {
+      const snapshot = this.readSnapshot(store, country, chart, day)
+      if (!snapshot) continue
+      for (const app of snapshot.apps || []) {
+        const row = acc.get(app.id) || {
+          id: app.id,
+          name: app.name,
+          developer: app.developer || '',
+          icon: app.icon || '',
+          url: app.url || '',
+          days: 0,
+          sumRank: 0,
+          best: Infinity,
+          lastRank: null,
+          lastDate: '',
+        }
+        row.days += 1
+        row.sumRank += app.rank
+        row.best = Math.min(row.best, app.rank)
+        if (day >= row.lastDate) {
+          row.lastDate = day
+          row.lastRank = app.rank
+        }
+        if (app.summaryZh) row.summaryZh = app.summaryZh
+        else if (app.summary) row.summary = app.summary
+        acc.set(app.id, row)
+      }
+    }
+    const apps = [...acc.values()]
+      .map((row) => ({ ...row, avgRank: row.sumRank / row.days }))
+      .sort((a, b) => a.avgRank - b.avgRank || b.days - a.days)
+      .slice(0, limit)
+      .map((row, index) => ({
+        ...row,
+        rank: index + 1,
+        avgRank: Math.round(row.avgRank * 10) / 10,
+        best: Number.isFinite(row.best) ? row.best : null,
+      }))
+    return {
+      ready: true,
+      store,
+      country,
+      chart,
+      date: today,
+      days: window.length,
+      start: window[0],
+      end: window[window.length - 1],
+      apps,
+    }
+  }
+
   descriptionFile(store, country, id) {
     const safeId = String(id).replace(/[^a-zA-Z0-9_.-]/g, '_')
     return path.join(this.dataDir, 'descriptions', store, country, `${safeId}.json`)
