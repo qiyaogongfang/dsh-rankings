@@ -25,7 +25,13 @@
 
 ## 安装
 
-DSH 插件管理里搜 `dsh-rankings`（认准 `@qiyaogongfang/dsh-rankings`），或命令行：
+DSH 插件管理里搜 `dsh-rankings`，或命令行（npm 包尚未发布时用 GitHub Release 包）：
+
+```bash
+dsh plugin add -w "https://github.com/qiyaogongfang/dsh-rankings/releases/download/v0.1.0/dsh-rankings.tgz"
+```
+
+npm 发布后也可以用：
 
 ```bash
 dsh plugin --profile web add @qiyaogongfang/dsh-rankings
