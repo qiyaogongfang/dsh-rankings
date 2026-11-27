@@ -7,7 +7,7 @@ const GAME_URL = (country) => `https://play.google.com/store/apps/category/GAME?
 const DETAIL_URL = (country, id) =>
   `https://play.google.com/store/apps/details?id=${encodeURIComponent(id)}&hl=en&gl=${String(country || 'us').toUpperCase()}`
 
-const ANCHOR = /<a class="Si6A0c ZD8Cqc" href="\/store\/apps\/details\?id=([A-Za-z0-9_.]+)"/g
+const ANCHOR = /<a class="Si6A0c[^"]*" href="\/store\/apps\/details\?id=([A-Za-z0-9_.]+)"/g
 
 function pickTitle(slice) {
   const alt = slice.match(/alt="Icon image ([^"]+)"/)

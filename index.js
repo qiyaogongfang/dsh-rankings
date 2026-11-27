@@ -582,7 +582,7 @@ async function prewarm(ctx, reason) {
     try {
       const { countries } = ctx.store.config()
       const tasks = []
-      const applePrewarm = ['free', 'paid', 'grossing', 'games_free', 'games_grossing']
+      const applePrewarm = ['free', 'paid', 'grossing', 'games_free', 'games_paid', 'games_grossing']
       for (const country of countries) {
         for (const chart of applePrewarm) tasks.push({ store: 'apple', country, chart })
         if (country !== 'cn') for (const chart of GOOGLE_CHARTS) tasks.push({ store: 'google', country, chart })
