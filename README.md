@@ -1,69 +1,77 @@
-# 软件排行榜
+# 软件排行榜 · dsh-rankings
 
-在 DSH 侧栏看苹果 App Store 与谷歌 Play 的每日榜单、飙升榜和软件简介；数据留在本机，模型也能直接查。
+在 DeepSeek Harness 侧栏看苹果 App Store 与 Google Play 的榜单：日榜 / 周榜 / 月榜 / 飙升榜，免费、付费、收入、游戏榜，每款应用一句话中文简介。
 
 ## 功能
 
-- **苹果榜单**：免费 / 付费 / 收入榜，外加游戏免费 / 游戏付费 / 游戏收入榜，每国前 100 名（免费源的上限）。
-- **谷歌榜单**：网页端可见的免费榜和游戏榜，各约 20 条；没有官方接口，页面改版可能失效。
-- **周榜 / 月榜**：按过去 7 / 30 天的每日快照聚合，按平均名次排序，附在榜天数和最佳名次。
-- **飙升榜**：每天自动存一份快照，对比前后两天名次，算出名次上升最快、以及新进榜的 App。
-- **软件简介**：每条榜单下面直接带一句话中文简介；原文可能是英/日/韩/德等语言，用本机 Ollama 统一翻成中文并缓存。
-- **预缓存**：启动后自动把全部国家/榜单抓取并翻译好，面板里还有「预缓存」按钮手动触发。
-- **本地存储**：快照是 `data/` 下的纯 JSON，不依赖数据库。
-
-## 数据来源
-
-| 平台 | 榜单 | 来源 |
-| :-- | :-- | :-- |
-| 苹果 App Store | 免费 / 付费 / 收入 | 官方接口 `rss.marketingtools.apple.com` + 收入榜旧 RSS；简介走 lookup 批量查询 |
-| 苹果 App Store | 游戏三榜 | 旧 RSS `genre=6014`（游戏分类） |
-| 谷歌 Play | 免费 / 游戏（各约 20 条） | 网页抓取 `store/apps/top` 与 `category/GAME`；简介取详情页官方短描述，缓存在本地 |
-
-> 谷歌只取网页可见部分（约 20–40 条），没有分页接口；苹果榜单接口最多给 100 条，`limit=50` 反而会稳定 502，所以统一取 100。榜单变长后预缓存要翻的条数也翻倍，首次预热会更久。
->
-> 简介翻译走本机 Ollama：默认 `qwen3.8:latest`，可用环境变量 `RANKINGS_OLLAMA_URL` / `RANKINGS_TRANSLATE_MODEL` 改。中文原文（中国区商店）直接沿用，不再翻译。
+- **17 个国家/地区**：us 美国、jp 日本、kr 韩国、de 德国、gb 英国、in 印度、cn 中国、fr 法国、ca 加拿大、au 澳大利亚、br 巴西、id 印尼、th 泰国、vn 越南、tw 台湾、hk 香港、sg 新加坡
+- **苹果 6 个榜**：免费、付费、收入、游戏免费、游戏付费、游戏收入，每榜前 100
+- **谷歌 2 个榜**：免费、游戏，约 20–40 条（网页可见量，非官方 API；中国大陆无 Google Play）
+- **4 个周期**：日榜、周榜（7 天平均名次）、月榜（30 天平均名次）、飙升榜（前后两天名次差）
+- **一句话中文简介**：抓取后由本机 Ollama 翻译并缓存，切换语言不影响已有缓存
+- **本地快照**：按 `store/country/chart/date` 存 JSON，保留历史，周榜/月榜靠它聚合
+- **云端同步（可选）**：配置后把快照与苹果评论推到自建 Cloudflare 服务 `rank.71lab.net`，供 Chrome 扩展读取
 
 ## 安装
 
-DSH 插件管理里搜 `dsh-rankings`，或命令行（npm 包尚未发布时用 GitHub Release 包）：
+在 DSH 的插件管理器里搜索 `dsh-rankings` 或「软件排行榜」安装。也可以命令行：
 
 ```bash
-dsh plugin add -w "https://github.com/qiyaogongfang/dsh-rankings/releases/download/v0.1.0/dsh-rankings.tgz"
+dsh plugin --profile desktop add @qiyaogongfang/dsh-rankings
 ```
 
-npm 发布后也可以用：
+或直接用 GitHub Release 的 tarball：
 
 ```bash
-dsh plugin --profile web add @qiyaogongfang/dsh-rankings
+dsh plugin --profile desktop add https://github.com/qiyaogongfang/dsh-rankings/releases/download/v0.2.0/qiyaogongfang-dsh-rankings-0.2.0.tgz
 ```
 
-装完刷新页面，左侧栏出现「软件排行榜」。想要中文简介，需要本机跑着 Ollama（关掉就显示原文）。
+安装后侧栏出现「软件排行榜」入口；首次打开会依次抓取，预缓存按钮可一次性补齐全部分区。
 
-## 模型工具
+## 数据来源
 
-| 工具 | 用途 |
-| :-- | :-- |
-| `rank_top` | 查指定商店、国家、榜单（含游戏榜）的前 100（谷歌约 20–40） |
-| `rank_rising` | 查飙升榜（对比最近一次更早的快照） |
-| `rank_app` | 按商店 id 查单个 App 的介绍 |
+- 苹果：marketingtools RSS（免费/付费）+ 旧版 iTunes RSS（收入榜、游戏三榜），逐国抓取
+- 谷歌：Play 网页解析（免费榜、游戏分类页）
+- 翻译：本机 Ollama（默认 `qwen3.8:latest`，`think:false`），失败保留英文原文
+- 云端：本机抓取后 `POST /api/ingest`，云端用千问批量翻译并落 D1
 
-## 目录结构
+## 配置
 
-```text
-rankings/
-├── index.js          Host：接口 + 三个工具 + 每日快照
-├── client.js         浏览器半边：侧栏面板
-├── store.js          快照存储与飙升计算
-├── http.js           网络：直连失败自动走系统代理（Windows 注册表）
-├── fetch-apple.js    苹果榜单与 lookup
-├── fetch-play.js     谷歌榜单与详情页抓取
-├── cordis.patch.yml  插件行声明
-├── locale/           zh / en 元数据
-└── data/             运行时生成：snapshots、descriptions、config.json
+`data/worker.json`（可选，不配也能本地用）：
+
+```json
+{ "url": "https://rank.71lab.net", "key": "<ingest key>", "enabled": true }
 ```
+
+## 已知限制
+
+- 谷歌榜单只有网页可见的 20–40 条，不是 Top 100
+- 苹果旧版 RSS 在 Cloudflare IP 上会 403，所以收入榜与游戏榜依赖本机插件推送
+- 周榜/月榜需要历史快照，刚装时窗口不足 7/30 天
+- 评论同步是串行队列（30 秒一条），云端可能滞后
 
 ## 开发
 
-本地目录直接挂进 profile：`node_modules/@local/rankings` 指向本目录（junction / symlink），
-`cordis.patch.yml` 里 insert 一行 `@local/rankings`。改 `client.js` 刷新页面；改 Host 文件需要重载插件。
+```bash
+npm install
+npm pack
+```
+
+目录：
+
+```
+dsh-rankings/
+├── index.js        Host：工具、动作、抓取、翻译、推送
+├── client.js       浏览器：侧栏面板
+├── store.js        快照存储、聚合、配置
+├── http.js         直连/代理回退、gzip/br
+├── fetch-apple.js  苹果榜单与评论
+├── fetch-play.js   谷歌榜单与详情
+├── translate.js    本机 Ollama 翻译
+├── cordis.patch.yml
+└── locale/         zh / en
+```
+
+## 许可证
+
+MIT

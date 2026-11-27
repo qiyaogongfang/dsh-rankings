@@ -1,6 +1,6 @@
 {
   "name": "@qiyaogongfang/dsh-rankings",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "软件排行榜：苹果 App Store 与谷歌 Play 的每日榜单、飙升榜和一句话中文简介，支持游戏榜，侧栏随时看。 / App store rankings for DeepSeek Harness: daily top charts (incl. games), rising apps and Chinese one-line intros.",
   "type": "module",
   "main": "index.js",
