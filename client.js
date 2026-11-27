@@ -206,70 +206,85 @@ window.__ModuleLoader__.load({
 
     const CSS = `
 .rp-root { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary);
-  font-family: "Geist", "PingFang SC", "HarmonyOS Sans SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; font-size: 14px; line-height: 1.6; }
+  font-family: "Geist", "PingFang SC", "HarmonyOS Sans SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; font-size: 13px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
 .rp-root *, .rp-root *::before, .rp-root *::after { box-sizing: border-box; }
-.rp-head { display: flex; align-items: center; gap: 10px; padding: 13px 20px; border-bottom: 1px solid var(--dsw-alias-border-l1); flex: none; }
-.rp-mark { display: flex; color: var(--dsw-alias-brand-primary); }
-.rp-head-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
-.rp-head-sub { font-size: 12px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+
+.rp-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; border-bottom: 1px solid var(--dsw-alias-border-l1); flex: none; }
+.rp-mark { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; flex: none; }
+.rp-mark i { width: 4px; border-radius: 1px; background: var(--dsw-alias-brand-primary); display: block; }
+.rp-mark i:nth-child(1) { height: 8px; opacity: .55; }
+.rp-mark i:nth-child(2) { height: 12px; opacity: .8; }
+.rp-mark i:nth-child(3) { height: 18px; }
+.rp-head-title { font-size: 15px; font-weight: 600; letter-spacing: .2px; line-height: 1.2; }
+.rp-head-sub { font-size: 11px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rp-grow { flex: 1; }
-.rp-btn { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 11px; font: inherit; font-size: 12.5px;
-  border: 1px solid var(--dsw-alias-border-l1); border-radius: 7px; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.rp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; height: 28px; padding: 0 10px; font: inherit; font-size: 12px;
+  border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
 .rp-btn:hover { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-border-l2); }
-.rp-btn:disabled { opacity: 0.55; cursor: default; }
-.rp-btn:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
-.rp-toolbar { display: flex; align-items: center; gap: 14px; padding: 10px 20px 8px; flex-wrap: wrap; flex: none; }
-.rp-group { display: inline-flex; padding: 2px; gap: 2px; background: var(--dsw-alias-bg-layer-1); border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; }
-.rp-tab { height: 24px; padding: 0 10px; font: inherit; font-size: 12.5px; border-radius: 6px; border: none; background: transparent;
-  color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.rp-btn:disabled { opacity: .5; cursor: default; }
+.rp-btn:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
+
+.rp-tabs { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; margin: 10px 16px 0; padding: 2px;
+  border: 1px solid var(--dsw-alias-border-l1); border-radius: 9px; background: var(--dsw-alias-bg-layer-1); flex: none; }
+.rp-tab { height: 28px; padding: 0 8px; border: 0; border-radius: 7px; background: transparent; color: var(--dsw-alias-label-secondary);
+  font: inherit; font-size: 12.5px; cursor: pointer; }
 .rp-tab:hover { color: var(--dsw-alias-label-primary); }
-.rp-tab[data-active="true"] { background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); font-weight: 500;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
-.rp-countries { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 20px 10px; flex: none; }
-.rp-country { height: 24px; padding: 0 10px; font: inherit; font-size: 12px; border-radius: 999px; border: 1px solid var(--dsw-alias-border-l1);
+.rp-tab[data-active="true"] { background: var(--dsw-alias-label-primary); color: var(--dsw-alias-bg-base); font-weight: 500; }
+.rp-tab:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
+
+.rp-toolbar { display: flex; align-items: center; gap: 8px; padding: 10px 16px 8px; flex-wrap: wrap; flex: none; }
+.rp-seg { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-layer-1); }
+.rp-seg .rp-tab { height: 24px; font-size: 12px; padding: 0 9px; }
+.rp-seg .rp-tab[data-active="true"] { background: color-mix(in srgb, var(--dsw-alias-brand-primary) 14%, transparent); color: var(--dsw-alias-brand-primary); font-weight: 600; }
+
+.rp-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 8px; flex: none; }
+.rp-chip { height: 24px; padding: 0 9px; font: inherit; font-size: 12px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 999px;
   background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
-.rp-country:hover { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-border-l2); }
-.rp-country[data-active="true"] { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); background: var(--dsw-alias-bg-layer-1); }
-.rp-note { padding: 0 20px 8px; font-size: 11.5px; color: var(--dsw-alias-label-secondary); flex: none; }
-.rp-main { flex: 1; min-height: 0; display: flex; border-top: 1px solid var(--dsw-alias-border-l1); }
-.rp-list { flex: 1; min-width: 0; overflow-y: auto; padding: 6px 10px 24px; }
-.rp-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border: 1px solid transparent; border-radius: 9px; min-height: 56px; }
-.rp-row:hover { background: var(--dsw-alias-bg-layer-1); border-color: var(--dsw-alias-border-l1); }
-.rp-summary { font-size: 11.5px; line-height: 1.45; color: var(--dsw-alias-label-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px; }
-.rp-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.rp-row-name { font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rp-rank { flex: none; width: 30px; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--dsw-alias-label-secondary); }
-.rp-rank[data-top="true"] { color: var(--dsw-alias-label-primary); font-weight: 600; }
-.rp-icon { flex: none; width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); object-fit: cover; }
-.rp-icon-fallback { display: flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-secondary); font-size: 12px; }
-.rp-row-dev { font-size: 11.5px; color: var(--dsw-alias-label-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rp-delta { flex: none; display: inline-flex; align-items: center; gap: 2px; height: 20px; padding: 0 7px; border-radius: 999px;
-  font-size: 11.5px; font-variant-numeric: tabular-nums; border: 1px solid transparent; }
-.rp-delta[data-kind="up"] { color: var(--dsw-alias-status-success, #2e7d4f); background: color-mix(in srgb, var(--dsw-alias-status-success, #2e7d4f) 12%, transparent); }
+.rp-chip:hover { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-border-l2); }
+.rp-chip[data-active="true"] { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary);
+  background: color-mix(in srgb, var(--dsw-alias-brand-primary) 10%, transparent); font-weight: 500; }
+.rp-chip:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
+
+.rp-countries { display: flex; gap: 6px; overflow-x: auto; padding: 0 16px 10px; flex: none; scrollbar-width: none; }
+.rp-countries::-webkit-scrollbar { display: none; }
+.rp-country { flex: none; height: 22px; padding: 0 8px; font: inherit; font-size: 11.5px; border: 1px solid transparent; border-radius: 6px;
+  background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.rp-country:hover { color: var(--dsw-alias-label-primary); }
+.rp-country[data-active="true"] { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); font-weight: 500; }
+
+.rp-main { flex: 1; min-height: 0; display: flex; flex-direction: column; border-top: 1px solid var(--dsw-alias-border-l1); }
+.rp-meta { padding: 8px 16px; font-size: 11px; color: var(--dsw-alias-label-secondary); border-bottom: 1px solid var(--dsw-alias-border-l1);
+  flex: none; font-variant-numeric: tabular-nums; }
+.rp-list { flex: 1; min-height: 0; overflow-y: auto; }
+
+.rp-row { display: grid; grid-template-columns: 30px 38px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  width: 100%; padding: 9px 16px; border: 0; border-bottom: 1px solid var(--dsw-alias-border-l1); background: transparent; text-align: left; }
+.rp-row:hover { background: var(--dsw-alias-bg-layer-1); }
+.rp-rank { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace; font-size: 12px; text-align: right;
+  color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+.rp-row:nth-child(-n+3) .rp-rank { color: var(--dsw-alias-brand-primary); font-weight: 600; }
+.rp-icon { width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); object-fit: cover; display: block; }
+.rp-icon-fallback { display: flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-secondary); font-size: 11px; }
+.rp-row-body { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.rp-row-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-row-dev { font-size: 11px; color: var(--dsw-alias-label-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-summary { font-size: 11.5px; color: var(--dsw-alias-label-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.rp-delta { flex: none; font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace; font-size: 11px; padding: 1px 7px;
+  border-radius: 999px; border: 1px solid transparent; font-variant-numeric: tabular-nums; }
+.rp-delta[data-kind="up"] { color: var(--dsw-alias-brand-primary); background: color-mix(in srgb, var(--dsw-alias-brand-primary) 12%, transparent); }
 .rp-delta[data-kind="down"] { color: var(--dsw-alias-label-secondary); }
 .rp-delta[data-kind="new"] { color: var(--dsw-alias-brand-primary); border-color: var(--dsw-alias-brand-primary); }
-.rp-delta[data-kind="same"] { color: var(--dsw-alias-label-secondary); opacity: 0.7; }
-.rp-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; height: 100%; padding: 40px 24px; text-align: center; }
-.rp-empty-mark { color: var(--dsw-alias-label-secondary); opacity: 0.7; }
-.rp-empty-title { font-size: 15px; font-weight: 600; }
-.rp-empty-hint { font-size: 12.5px; color: var(--dsw-alias-label-secondary); max-width: 360px; line-height: 1.6; }
-.rp-banner { margin: 10px 20px; padding: 10px 12px; border-radius: 8px; font-size: 12.5px; line-height: 1.5;
+.rp-delta[data-kind="same"] { color: var(--dsw-alias-label-secondary); opacity: .6; }
+.rp-delta[data-kind="days"] { color: var(--dsw-alias-label-secondary); border-color: var(--dsw-alias-border-l1); }
+
+.rp-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 56px 24px; text-align: center; }
+.rp-empty-mark { color: var(--dsw-alias-label-secondary); opacity: .7; }
+.rp-empty-title { font-size: 14px; font-weight: 600; }
+.rp-empty-hint { font-size: 12px; color: var(--dsw-alias-label-secondary); max-width: 340px; line-height: 1.6; }
+.rp-banner { margin: 10px 16px; padding: 10px 12px; border-radius: 8px; font-size: 12px; line-height: 1.5;
   color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-layer-1); border: 1px solid var(--dsw-alias-border-l2); }
-.rp-detail { width: 380px; flex: none; border-left: 1px solid var(--dsw-alias-border-l1); display: flex; flex-direction: column; min-height: 0; }
-.rp-detail-head { display: flex; align-items: flex-start; gap: 12px; padding: 16px 16px 12px; border-bottom: 1px solid var(--dsw-alias-border-l1); flex: none; }
-.rp-detail-icon { flex: none; width: 56px; height: 56px; border-radius: 12px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); }
-.rp-detail-title { font-size: 15px; font-weight: 600; line-height: 1.35; word-break: break-word; }
-.rp-detail-dev { font-size: 12px; color: var(--dsw-alias-label-secondary); }
-.rp-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 12px 16px; flex: none; }
-.rp-meta-item { font-size: 12px; color: var(--dsw-alias-label-secondary); }
-.rp-meta-item b { color: var(--dsw-alias-label-primary); font-weight: 500; }
-.rp-desc { flex: 1; min-height: 0; overflow-y: auto; padding: 0 16px 18px; white-space: pre-wrap; font-size: 13px; line-height: 1.75; color: var(--dsw-alias-label-primary); }
-.rp-tagline { padding: 0 16px 8px; font-size: 12.5px; color: var(--dsw-alias-label-secondary); line-height: 1.6; }
-.rp-detail-hint { font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
-.rp-detail-foot { padding: 10px 16px; border-top: 1px solid var(--dsw-alias-border-l1); display: flex; align-items: center; gap: 8px; flex: none; }
-.rp-link { color: var(--dsw-alias-brand-primary); text-decoration: none; font-size: 12.5px; }
-.rp-link:hover { text-decoration: underline; }
-.rp-spinner { font-size: 12.5px; color: var(--dsw-alias-label-secondary); padding: 18px 16px; }
+.rp-spinner { font-size: 12px; color: var(--dsw-alias-label-secondary); padding: 18px 16px; }
 `
 
     function countryName(code, t) {
@@ -417,7 +432,7 @@ window.__ModuleLoader__.load({
         : ''
 
       const head = h('div', { className: 'rp-head' },
-        h('span', { className: 'rp-mark' }, h(Bars, { size: 17 })),
+        h('span', { className: 'rp-mark' }, h('i'), h('i'), h('i')),
         h('span', { className: 'rp-head-title' }, t.title),
         h('span', { className: 'rp-head-sub' }, `${t.subtitle(storeLabel, viewLabel, countryName(country, t))}${apps.length ? ` · ${apps.length} 款` : ''}`),
         h('span', { className: 'rp-grow' }),
@@ -438,28 +453,27 @@ window.__ModuleLoader__.load({
           onClick: () => load(true),
         }, state.phase === 'loading' ? t.refreshing : t.refresh))
 
-      const storeTabs = h('div', { className: 'rp-group' },
+      const storeTabs = h('div', { className: 'rp-seg' },
         h('button', { type: 'button', className: 'rp-tab', 'data-active': String(store === 'apple'), onClick: () => setStore('apple') }, t.storeApple),
         h('button', { type: 'button', className: 'rp-tab', 'data-active': String(store === 'google'), onClick: () => setStore('google') }, t.storeGoogle))
 
-      const categoryTabs = h('div', { className: 'rp-group' },
-        h('button', { type: 'button', className: 'rp-tab', 'data-active': String(category === 'all'), onClick: () => setCategory('all') }, t.catAll),
-        h('button', { type: 'button', className: 'rp-tab', 'data-active': String(category === 'games'), onClick: () => setCategory('games') }, t.catGames))
+      const chartChips = h('div', { className: 'rp-chips' },
+        h('button', { type: 'button', className: 'rp-chip', 'data-active': String(category === 'all' && chart === 'free'),
+          disabled: false, onClick: () => { setCategory('all'); setChart('free') } }, t.chartFree),
+        h('button', { type: 'button', className: 'rp-chip', 'data-active': String(category === 'all' && chart === 'paid'),
+          disabled: store === 'google', onClick: () => { if (store !== 'google') { setCategory('all'); setChart('paid') } } }, t.chartPaid),
+        h('button', { type: 'button', className: 'rp-chip', 'data-active': String(category === 'all' && chart === 'grossing'),
+          disabled: store === 'google', onClick: () => { if (store !== 'google') { setCategory('all'); setChart('grossing') } } }, t.chartGrossing),
+        h('button', { type: 'button', className: 'rp-chip', 'data-active': String(category === 'games'),
+          onClick: () => setCategory(category === 'games' ? 'all' : 'games') }, t.catGames))
 
-      const chartTabs = store === 'google'
-        ? h('div', { className: 'rp-group' }, h('button', { type: 'button', className: 'rp-tab', 'data-active': 'true' }, t.chartFree))
-        : h('div', { className: 'rp-group' },
-            h('button', { type: 'button', className: 'rp-tab', 'data-active': String(chart === 'free'), onClick: () => setChart('free') }, t.chartFree),
-            h('button', { type: 'button', className: 'rp-tab', 'data-active': String(chart === 'paid'), onClick: () => setChart('paid') }, t.chartPaid),
-            h('button', { type: 'button', className: 'rp-tab', 'data-active': String(chart === 'grossing'), onClick: () => setChart('grossing') }, t.chartGrossing))
-
-      const viewTabs = h('div', { className: 'rp-group' },
+      const viewTabs = h('div', { className: 'rp-tabs' },
         h('button', { type: 'button', className: 'rp-tab', 'data-active': String(view === 'top'), onClick: () => setView('top') }, t.viewTop),
         h('button', { type: 'button', className: 'rp-tab', 'data-active': String(view === 'weekly'), onClick: () => setView('weekly') }, t.viewWeekly),
         h('button', { type: 'button', className: 'rp-tab', 'data-active': String(view === 'monthly'), onClick: () => setView('monthly') }, t.viewMonthly),
         h('button', { type: 'button', className: 'rp-tab', 'data-active': String(view === 'rising'), onClick: () => setView('rising') }, t.viewRising))
 
-      const toolbar = h('div', { className: 'rp-toolbar' }, storeTabs, categoryTabs, chartTabs, viewTabs)
+      const toolbar = h('div', { className: 'rp-toolbar' }, storeTabs, chartChips)
 
       const activeCountries = store === 'google' ? countries.filter((code) => code !== 'cn') : countries
       const countryRow = h('div', { className: 'rp-countries' },
@@ -471,7 +485,7 @@ window.__ModuleLoader__.load({
           onClick: () => setCountry(code),
         }, countryName(code, t))))
 
-      const note = store === 'google' ? h('div', { className: 'rp-note' }, t.googleNote) : null
+      const note = store === 'google' ? h('div', { className: 'rp-meta' }, t.googleNote) : null
 
       let body = null
       if (state.phase === 'loading') {
@@ -503,7 +517,13 @@ window.__ModuleLoader__.load({
               h('div', { className: 'rp-empty-hint' }, t.emptyTopHint),
               h('button', { type: 'button', className: 'rp-btn', onClick: () => load(true) }, t.refresh))))
       } else {
+        const metaText = view === 'weekly' || view === 'monthly'
+          ? (data && data.start ? `${data.start} → ${data.end} · ${data.days} 天 · 按平均名次排` : '')
+          : view === 'rising'
+            ? (data && data.date ? `${data.date} 对比 ${data.previous || '—'}` : '')
+            : (data && data.day ? `快照 ${data.day} · ${apps.length} 款` : `${apps.length} 款`)
         body = h('div', { className: 'rp-main' },
+          metaText ? h('div', { className: 'rp-meta' }, metaText) : null,
           h('div', { className: 'rp-list' },
             apps.map((app) => h(Row, { key: app.id, app, t }))))
       }
@@ -511,6 +531,7 @@ window.__ModuleLoader__.load({
       return h('div', { className: 'rp-root' },
         h('style', { dangerouslySetInnerHTML: { __html: CSS } }),
         head,
+        viewTabs,
         toolbar,
         countryRow,
         note,
