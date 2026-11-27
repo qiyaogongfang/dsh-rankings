@@ -5,9 +5,10 @@
 // 3. 每天存一份快照，名次差算「飙升榜」；数据在 data/snapshots 下，纯 JSON。
 import { fileURLToPath } from 'node:url'
 import { Store, localDate, DEFAULT_COUNTRIES } from './store.js'
-import { fetchAppleChart, fetchAppleApp, fetchAppleSummaries } from './fetch-apple.js'
+import { fetchAppleChart, fetchAppleApp, fetchAppleSummaries, fetchAppleReviews } from './fetch-apple.js'
 import { fetchPlayChart, fetchPlayApp, fetchPlaySummary } from './fetch-play.js'
 import { translateLines } from './translate.js'
+import { request } from './http.js'
 
 const PLUGIN_ROOT = fileURLToPath(new URL('.', import.meta.url))
 const BASE = '/rankings/api'
@@ -82,6 +83,7 @@ async function dispatch(ctx, action, payload) {
         }
         if (added) {
           const snapshot = ctx.store.saveSnapshot({ store, country, chart, date: saved.date, apps: saved.apps })
+          pushSnapshot(ctx, snapshot).catch(() => {})
           return { ...snapshot, cached: true }
         }
         return { ...saved, cached: true }
@@ -93,6 +95,7 @@ async function dispatch(ctx, action, payload) {
         console.error(`[rankings] 补简介跳过: ${error.message}`)
       }
       const snapshot = ctx.store.saveSnapshot({ store, country, chart, date: localDate(), apps })
+      pushSnapshot(ctx, snapshot).catch(() => {})
       return { ...snapshot, cached: false }
     }
     case 'rising': {
@@ -131,6 +134,8 @@ async function dispatch(ctx, action, payload) {
     }
     case 'prewarm':
       return prewarm(ctx, '手动')
+    case 'push':
+      return pushToday(ctx)
     default:
       throw statusError(400, `未知操作：${action}`)
   }
@@ -308,6 +313,100 @@ async function enrichAll(ctx, { store, country, chart, apps }, mode = 'ui') {
   if (mode === 'cache-only') return added + await localizeSummaries(ctx, apps, { applyOnly: true })
   if (mode === 'prewarm') return added + await localizeSummaries(ctx, apps, { chunkSize: 50 })
   return added + await localizeSummaries(ctx, apps, { syncLimit: 12 })
+}
+
+/** 把快照推到云端 Worker（data/worker.json 配置了才推）。 */
+async function pushSnapshot(ctx, snapshot) {
+  const worker = ctx.store.worker()
+  if (!worker || !worker.enabled) return false
+  try {
+    const res = await request(`${worker.url}/api/ingest?key=${encodeURIComponent(worker.key)}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        store: snapshot.store,
+        country: snapshot.country,
+        chart: snapshot.chart,
+        day: snapshot.date,
+        apps: snapshot.apps,
+      }),
+      timeout: 20000,
+    })
+    if (res.status >= 200 && res.status < 300) {
+      enqueueReviews(ctx, snapshot).catch(() => {})
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error(`[rankings] 推送云端失败 ${snapshot.store}/${snapshot.country}/${snapshot.chart}: ${error.message}`)
+    return false
+  }
+}
+
+/** 把今天所有快照推一遍（手动或定时补齐用）。 */
+async function pushToday(ctx) {
+  const worker = ctx.store.worker()
+  if (!worker) return { pushed: 0, failed: 0, skipped: true }
+  const { countries } = ctx.store.config()
+  const today = localDate()
+  let pushed = 0
+  let failed = 0
+  for (const country of countries) {
+    const charts = APPLE_CHARTS
+    for (const chart of charts) {
+      const snapshot = ctx.store.readSnapshot('apple', country, chart, today)
+      if (snapshot && (await pushSnapshot(ctx, snapshot))) pushed++
+      else if (snapshot) failed++
+    }
+    if (country !== 'cn') {
+      for (const chart of GOOGLE_CHARTS) {
+        const snapshot = ctx.store.readSnapshot('google', country, chart, today)
+        if (snapshot && (await pushSnapshot(ctx, snapshot))) pushed++
+        else if (snapshot) failed++
+      }
+    }
+  }
+  return { pushed, failed, skipped: false }
+}
+
+/** 把榜单前排 App 排进评论队列（只处理苹果，队列串行慢慢补全）。 */
+async function enqueueReviews(ctx, snapshot) {
+  if (snapshot.store !== 'apple') return
+  const worker = ctx.store.worker()
+  if (!worker || !worker.enabled) return
+  const queue = ctx.store.readReviewsQueue()
+  const known = new Set(queue.map((item) => `${item.country}:${item.id}`))
+  for (const app of snapshot.apps.slice(0, 10)) {
+    const key = `${snapshot.country}:${app.id}`
+    if (known.has(key)) continue
+    known.add(key)
+    queue.push({ store: 'apple', country: snapshot.country, id: app.id, name: app.name })
+  }
+  ctx.store.saveReviewsQueue(queue)
+}
+
+/** 队列串行处理：一次取一条，抓评论推云端，成功失败都出队。 */
+async function processReviewsQueue(ctx) {
+  const worker = ctx.store.worker()
+  if (!worker || !worker.enabled) return
+  const queue = ctx.store.readReviewsQueue()
+  if (!queue.length) return
+  const item = queue[0]
+  try {
+    const reviews = await fetchAppleReviews({ country: item.country, id: item.id })
+    if (reviews.length) {
+      await request(`${worker.url}/api/reviews/ingest?key=${encodeURIComponent(worker.key)}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ store: 'apple', country: item.country, id: item.id, reviews }),
+        timeout: 20000,
+      })
+      console.log(`[rankings] 评论已推送 ${item.country}/${item.id}（${reviews.length} 条）`)
+    }
+  } catch (error) {
+    console.error(`[rankings] 评论推送失败 ${item.country}/${item.id}: ${error.message}`)
+  }
+  ctx.store.saveReviewsQueue(queue.slice(1))
 }
 
 function formatRankLine(app) {
@@ -495,7 +594,8 @@ async function prewarm(ctx, reason) {
             const fresh = saved && Date.now() - Date.parse(saved.fetchedAt) < FRESH_MS
             const apps = fresh ? saved.apps : await fetchChart(task)
             await enrichAll(ctx, { ...task, apps }, 'prewarm')
-            ctx.store.saveSnapshot({ ...task, date: fresh ? saved.date : localDate(), apps })
+            const snapshot = ctx.store.saveSnapshot({ ...task, date: fresh ? saved.date : localDate(), apps })
+            pushSnapshot(ctx, snapshot).catch(() => {})
           } catch (error) {
             console.error(`[rankings] 预缓存失败（第 ${round} 轮）${task.store}/${task.country}/${task.chart}: ${error.message}`)
           }
@@ -603,6 +703,12 @@ export function apply(ctx) {
   for (const tool of buildTools(state)) ctx.effect(() => ctx.tools.register(tool))
 
   ctx.effect(() => startDaily(state))
+
+  ctx.effect(() => {
+    const timer = setInterval(() => { processReviewsQueue(state).catch(() => {}) }, 30000)
+    if (timer.unref) timer.unref()
+    return () => clearInterval(timer)
+  })
 
   const systemPrompt = ctx.get('systemPrompt')
   if (systemPrompt) {

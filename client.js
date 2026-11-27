@@ -205,7 +205,7 @@ window.__ModuleLoader__.load({
     }
 
     const CSS = `
-.rp-root { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary);
+.rp-root { position: relative; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-x: hidden; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary);
   font-family: "Geist", "PingFang SC", "HarmonyOS Sans SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; font-size: 13px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
 .rp-root *, .rp-root *::before, .rp-root *::after { box-sizing: border-box; }
 
@@ -216,9 +216,9 @@ window.__ModuleLoader__.load({
 .rp-mark i:nth-child(2) { height: 12px; opacity: .8; }
 .rp-mark i:nth-child(3) { height: 18px; }
 .rp-head-title { font-size: 15px; font-weight: 600; letter-spacing: .2px; line-height: 1.2; }
-.rp-head-sub { font-size: 11px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-head-sub { font-size: 11px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .rp-grow { flex: 1; }
-.rp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; height: 28px; padding: 0 10px; font: inherit; font-size: 12px;
+.rp-btn { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 5px; height: 28px; padding: 0 10px; font: inherit; font-size: 12px;
   border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
 .rp-btn:hover { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-border-l2); }
 .rp-btn:disabled { opacity: .5; cursor: default; }
@@ -262,7 +262,7 @@ window.__ModuleLoader__.load({
 .rp-row:hover { background: var(--dsw-alias-bg-layer-1); }
 .rp-rank { font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace; font-size: 12px; text-align: right;
   color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
-.rp-row:nth-child(-n+3) .rp-rank { color: var(--dsw-alias-brand-primary); font-weight: 600; }
+.rp-rank[data-top="true"] { color: var(--dsw-alias-brand-primary); font-weight: 600; }
 .rp-icon { width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); object-fit: cover; display: block; }
 .rp-icon-fallback { display: flex; align-items: center; justify-content: center; color: var(--dsw-alias-label-secondary); font-size: 11px; }
 .rp-row-body { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
@@ -436,8 +436,6 @@ window.__ModuleLoader__.load({
         h('span', { className: 'rp-head-title' }, t.title),
         h('span', { className: 'rp-head-sub' }, `${t.subtitle(storeLabel, viewLabel, countryName(country, t))}${apps.length ? ` · ${apps.length} 款` : ''}`),
         h('span', { className: 'rp-grow' }),
-        range ? h('span', { className: 'rp-head-sub' }, range) : null,
-        updated && view === 'top' ? h('span', { className: 'rp-head-sub' }, t.updated(updated)) : null,
         h('button', {
           type: 'button',
           className: 'rp-btn',

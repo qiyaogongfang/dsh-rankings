@@ -122,4 +122,23 @@ export async function fetchAppleSummaries({ country, ids }) {
   return map
 }
 
+/** 苹果用户评论（RSS，最近一页约 50 条）。 */
+export async function fetchAppleReviews({ country, id }) {
+  const code = String(country || 'us').toLowerCase()
+  const payload = await requestJson(
+    `https://itunes.apple.com/${code}/rss/customerreviews/id=${encodeURIComponent(id)}/sortBy=mostRecent/json`,
+  )
+  const entries = payload.feed?.entry || []
+  return entries
+    .filter((entry) => entry['im:rating'])
+    .map((entry) => ({
+      author: entry.author?.name?.label || '',
+      rating: Number(entry['im:rating']?.label || 0),
+      title: entry.title?.label || '',
+      content: entry.content?.label || '',
+      version: entry['im:version']?.label || '',
+      date: entry.updated?.label || '',
+    }))
+}
+
 export { request }

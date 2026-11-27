@@ -73,6 +73,34 @@ export class Store {
     return snapshot
   }
 
+  workerFile() {
+    return path.join(this.dataDir, 'worker.json')
+  }
+
+  worker() {
+    const saved = readJson(this.workerFile(), null)
+    if (!saved || !saved.url) return null
+    return {
+      url: String(saved.url).replace(/\/+$/, ''),
+      key: String(saved.key || ''),
+      enabled: saved.enabled !== false,
+    }
+  }
+
+  reviewsQueueFile() {
+    return path.join(this.dataDir, 'reviews-queue.json')
+  }
+
+  readReviewsQueue() {
+    const saved = readJson(this.reviewsQueueFile(), null)
+    return Array.isArray(saved) ? saved : []
+  }
+
+  saveReviewsQueue(queue) {
+    writeJsonAtomic(this.reviewsQueueFile(), queue.slice(0, 500))
+    return queue
+  }
+
   readSnapshot(store, country, chart, date) {
     return readJson(this.snapshotFile(store, country, chart, date), null)
   }
