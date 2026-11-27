@@ -549,6 +549,25 @@ function startDaily(ctx) {
   }
 }
 
+/**
+ * DSH 准入检查：优先用 connection.requestRejection（Host/Origin 围栏 + 浏览器登录令牌），
+ * 服务不可用时返回 false，退回 readJson 里的同源检查，避免任意网页调用本机接口。
+ */
+function guard(ctx, req, res) {
+  const connection = typeof ctx.get === 'function' ? ctx.get('connection') : null
+  if (!connection || typeof connection.requestRejection !== 'function') return false
+  let rejection
+  try {
+    rejection = connection.requestRejection(req)
+  } catch {
+    rejection = 403
+  }
+  if (rejection === undefined) return false
+  res.writeHead(rejection, { 'content-type': 'text/plain; charset=utf-8' })
+  res.end('forbidden')
+  return true
+}
+
 export function apply(ctx) {
   const store = new Store(PLUGIN_ROOT)
   const state = { store }
@@ -557,6 +576,7 @@ export function apply(ctx) {
     kind: 'prefix',
     path: BASE,
     async handler(req, res) {
+      if (guard(ctx, req, res)) return
       try {
         const body = await readJson(req)
         const data = await dispatch(state, String(body.action || ''), body)
